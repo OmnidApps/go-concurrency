@@ -2,18 +2,24 @@ package main
 
 import (
 	"concurrency-poc/pkg/models"
+	"context"
 	"fmt"
+	"log"
 	"sync"
 	"time"
-	"wg/aggregation"
+	"wg/pkg/aggregation"
 )
 
+const EXAMPLE_NAME = "wg/examples/data-aggregation"
+
 func main() {
+	log.Println("Running example:", EXAMPLE_NAME)
 	// Sync - ~70ms
 	SyncWork()
 
 	// Async - ~50ms
 	AsyncWork()
+	log.Println("Finished example:", EXAMPLE_NAME)
 }
 
 func SyncWork() {
@@ -21,7 +27,7 @@ func SyncWork() {
 	user := aggregation.SyncGetUserData()
 	friends := aggregation.SyncGetUserFriends()
 
-	fmt.Printf("User: %q has %d friends, determined in %v\n", user.Name, len(friends), time.Since(start))
+	fmt.Printf("[SYNC] - User: %q has %d friends, determined in %v\n", user.Name, len(friends), time.Since(start))
 }
 
 func AsyncWork() {
@@ -36,12 +42,12 @@ func AsyncWork() {
 	wg.Add(2)
 
 	// Fork
-	go userData.GetUserName(&wg)
-	go userData.GetFriends(&wg)
+	go userData.GetUserName(context.TODO(), &wg)
+	go userData.GetFriends(context.TODO(), &wg)
 
 	// Join
 	wg.Wait()
 	user = userData.Read()
 
-	fmt.Printf("User: %q has %d friends, determined in %v\n", user.Name, len(user.Friends), time.Since(start))
+	fmt.Printf("[ASYNC] - User: %q has %d friends, determined in %v\n", user.Name, len(user.Friends), time.Since(start))
 }

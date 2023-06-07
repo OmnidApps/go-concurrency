@@ -7,10 +7,13 @@ import (
 	"log"
 	"sync"
 	"time"
-	"wg/aggregation"
+	"wg/pkg/aggregation"
 )
 
+const EXAMPLE_NAME = "contexts/examples/wg-timeout"
+
 func main() {
+	log.Println("Running example:", EXAMPLE_NAME)
 	start := time.Now()
 
 	ctx := context.Background()
@@ -19,6 +22,7 @@ func main() {
 
 	fmt.Printf("got user %v, with error %v\n", user, err)
 	fmt.Printf("execution finished in %v\n", time.Since(start))
+	log.Println("Finished example:", EXAMPLE_NAME)
 }
 
 func fetchUserData(ctx context.Context) (models.User, error) {
