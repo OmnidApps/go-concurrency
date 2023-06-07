@@ -1,9 +1,11 @@
 package main
 
 import (
+	"concurrency-poc/pkg/models"
 	"fmt"
 	"sync"
 	"time"
+	"wg/aggregation"
 )
 
 func main() {
@@ -16,8 +18,8 @@ func main() {
 
 func SyncWork() {
 	start := time.Now()
-	user := getUserData()
-	friends := getUserFriends()
+	user := aggregation.SyncGetUserData()
+	friends := aggregation.SyncGetUserFriends()
 
 	fmt.Printf("User: %q has %d friends, determined in %v\n", user.Name, len(friends), time.Since(start))
 }
@@ -27,12 +29,10 @@ func AsyncWork() {
 
 	// Join mechanisms
 	var wg sync.WaitGroup
-	var userData UserDataAggregator = &UserData{
-		name:    make(chan string, 1),
-		friends: make(chan []User, 1),
-	}
+	var user models.User
 
-	var user User
+	// TODO: Extract and leverage UserDataAggregator interface
+	userData := aggregation.NewUserData()
 	wg.Add(2)
 
 	// Fork
